@@ -101,6 +101,40 @@ class ItemController {
       console.log(error);
     }
   }
+
+  async removeItem(req, res) {
+    try {
+      const { quantity, name } = req.body;
+
+      const quantityToRemove = parseInt(quantity) || 0;
+
+      const result = await ItemModel.removeItem(quantityToRemove, name);
+
+      if (!result.success) {
+        return res.status(404).json({ error: result.error });
+      }
+
+      if (result.removedCompletely) {
+        res.status(200).json({
+          message: `🗑️ *${result.itemName.toUpperCase()} REMOVIDO COMPLETAMENTE!*\n\n➖ Valor retirado: R$ ${result.removedValue.toFixed(
+            2
+          )}\n\n📌 _Total da lista agora_: R$ ${result.totalValue.toFixed(2)}`,
+        });
+      } else {
+        res.status(200).json({
+          message: `🔻 *${quantityToRemove} ${result.itemName.toUpperCase()} REMOVIDO DO CARRINHO!*\n\n➖ Valor retirado: R$ ${result.removedValue.toFixed(
+            2
+          )}\n📊 Restam: ${
+            result.remainingQuantity
+          } unidade(s) (R$ ${result.remainingValue.toFixed(
+            2
+          )})\n\n📌 _Total da lista agora_: R$ ${result.totalValue.toFixed(2)}`,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 module.exports = new ItemController();
