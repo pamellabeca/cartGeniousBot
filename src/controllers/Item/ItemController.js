@@ -14,10 +14,7 @@ class ItemController {
       });
 
       const normalizeCategory = (category) => {
-        return category
-          .replace(/,/g, '') 
-          .replace(/\s+/g, ' ') 
-          .trim();
+        return category.replace(/,/g, "").replace(/\s+/g, " ").trim();
       };
 
       const categoryMapping = {
@@ -36,11 +33,15 @@ class ItemController {
 
       let categoryWithoutEmoji = categoryMapping[categoryWithEmoji];
 
-      if(!categoryWithoutEmoji){
+      if (!categoryWithoutEmoji) {
         const normalizedInput = normalizeCategory(categoryWithEmoji);
-        categoryWithoutEmoji = Object.values(categoryMapping).find(
-          cat => normalizeCategory(cat) === normalizedInput
-        ) || normalizedInput.replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, "").trim();
+        categoryWithoutEmoji =
+          Object.values(categoryMapping).find(
+            (cat) => normalizeCategory(cat) === normalizedInput
+          ) ||
+          normalizedInput
+            .replace(/[\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu, "")
+            .trim();
       }
 
       const nameExists = await ItemModel.DuplicatedItem(name);
@@ -58,6 +59,43 @@ class ItemController {
 
       res.status(200).json({
         message: `✅ ${name.toUpperCase()} ADICIONADO!\n\n📍 *Categoria*: ${categoryWithEmoji}`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async addToCart(req, res) {
+    try {
+      const { quantity, name, unitPrice } = req.body;
+
+      const result = await ItemModel.addToCart({
+        quantity: Number(quantity),
+        name,
+        unitPrice: Number(unitPrice),
+      });
+
+      if (!result.status) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      const {
+        quantity: qnt,
+        name: itemName,
+        unitPrice: price,
+        subtotal,
+        totalValue,
+        isNewAddition,
+      } = result.data;
+
+      res.status(200).json({
+        message: `🛍️ *${itemName.toUpperCase()} ${
+          isNewAddition ? "ADICIONADO" : "ATUALIZADO"
+        } NO CARRINHO!*\n\n🔢 **Quantidade**: ${qnt} unidades\n💲 **Preço unitário**: R$ ${price.toFixed(
+          2
+        )}\n🧮 **Subtotal**: R$ ${subtotal.toFixed(
+          2
+        )}\n\n📌 _Total da lista agora_: R$ ${totalValue.toFixed(2)}`,
       });
     } catch (error) {
       console.log(error);
