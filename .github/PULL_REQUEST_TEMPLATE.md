@@ -12,13 +12,3 @@
 
 ## 📸 Screenshots (se aplicável)
 [Inclua screenshots da implementação, se relevante]
-
-## 📋 Checklist (OPCIONAL)
-- [ ] Código segue os padrões do projeto
-- [ ] Testes adicionados/atualizados
-- [ ] Documentação atualizada
-- [ ] Revisão de código realizada
-
-## 🔗 Links relacionados (OPCIONAL)
-- Issue #[número]
-- Documentação: [link]
