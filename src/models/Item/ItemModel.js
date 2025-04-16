@@ -134,6 +134,99 @@ class ItemModel {
     }
   }
 
+  async removeItem(quantityToRemove, name) {
+    try {
+      const activeList = await prisma.shoppingList.findFirst({
+        where: { finalizedAt: null },
+      });
+
+      if (!activeList) {
+        return { success: false, error: "Lista não encontrada" };
+      }
+
+      const item = await prisma.item.findFirst({
+        where: {
+          name: name,
+          listId: activeList.id,
+        },
+      });
+
+      if (!item) {
+        return { success: false, error: "Item não encontrado na lista" };
+      }
+
+      const unitPrice = item.unitPrice || 0;
+      const currentQuantity = item.quantity || 0;
+      const currentTotalPrice = item.totalPrice || 0;
+
+      if (quantityToRemove >= currentQuantity || quantityToRemove === 0) {
+        await prisma.item.delete({
+          where: { id: item.id },
+        });
+
+        await this.updateListTotal(activeList.id);
+
+        const updatedList = await prisma.shoppingList.findUnique({
+          where: { id: activeList.id },
+        });
+
+        return {
+          success: true,
+          removedCompletely: true,
+          removedValue: currentTotalPrice,
+          itemName: item.name,
+          totalValue: updatedList.totalValue || 0,
+        };
+      } else {
+        const newQuantity = currentQuantity - quantityToRemove;
+        const removedValue = quantityToRemove * unitPrice;
+        const newTotalPrice = newQuantity * unitPrice;
+
+        await prisma.item.update({
+          where: { id: item.id },
+          data: {
+            quantity: newQuantity,
+            totalPrice: newTotalPrice,
+          },
+        });
+
+        await this.updateListTotal(activeList.id);
+
+        const updatedList = await prisma.shoppingList.findUnique({
+          where: { id: activeList.id },
+        });
+
+        return {
+          success: true,
+          removedCompletely: false,
+          removedValue,
+          remainingQuantity: newQuantity,
+          remainingValue: newTotalPrice,
+          itemName: item.name,
+          totalValue: updatedList.totalValue || 0,
+        };
+      }
+    } catch (error) {
+      console.error(error);
+      return { success: false };
+    }
+  }
+
+  async updateListTotal(listId) {
+    const items = await prisma.item.findMany({
+      where: { listId: listId },
+    });
+
+    const totalValue = items.reduce(
+      (acc, item) => acc + (item.totalPrice || 0),
+      0
+    );
+
+    await prisma.shoppingList.update({
+      where: { id: listId },
+      data: { totalValue },
+    });
+  }
 }
 
 module.exports = new ItemModel();

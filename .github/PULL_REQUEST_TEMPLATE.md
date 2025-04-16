@@ -1,8 +1,8 @@
 ## 📝 Descrição
-Criado servidor com express para rodar a API
+[O que foi feito]
 
 ## 🔍 Problema
-Foi necessário criaar o servidor com express para simplificar a criação e organização da APIs Node.js
+[o que foi resolvido]
 
 ## 💡 Solução
 [Explicação de como sua implementação resolve o problema]
