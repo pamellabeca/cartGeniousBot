@@ -243,11 +243,6 @@ Ex: \`/limpeza\`
   await ctx.reply(helpMessage, { parse_mode: "Markdown" });
 });
 
-bot
-  .launch()
-  .then(() => console.log("Bot iniciado com sucesso!"))
-  .catch((err) => console.error("Falha ao iniciar bot:", err));
-
 bot.on("text", async (ctx) => {
   const text = ctx.message.text;
   if (text.startsWith("/")) {
@@ -257,3 +252,12 @@ bot.on("text", async (ctx) => {
   }
   console.log("Mensagem de texto recebida:", text);
 });
+
+module.exports = {
+  startBot: () => {
+    bot.launch()
+      .then(() => console.log('🤖 Bot iniciado com sucesso!'))
+      .catch(err => console.error('Falha ao iniciar bot:', err));
+    return bot;
+  }
+};
