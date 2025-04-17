@@ -189,7 +189,7 @@ bot.command("categories", async (ctx) => {
 });
 
 bot.hears(
-  /^\/(?!add|addCart|remove|total|finalizar|finalized|categories|report)(.+)/,
+  /^\/(?!add|addCart|remove|total|finalizar|finalized|categories|report|comandos)(.+)/,
   async (ctx) => {
     const categoryName = ctx.message.text.slice(1);
 
